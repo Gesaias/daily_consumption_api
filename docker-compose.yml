@@ -1,0 +1,20 @@
+version: "3"
+
+volumes:
+  postgres_data:
+    driver: local
+
+services:
+  db:
+    image: postgres:latest
+    container_name: daily_consumption_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    extra_hosts:
+      - "host.docker.internal:172.17.0.1"
+    environment:
+      POSTGRES_DB: daily_consumption_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - 5432:5432
