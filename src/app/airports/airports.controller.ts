@@ -7,7 +7,7 @@ export class AirportsController {
 
   @Get('update/cache')
   @HttpCode(HttpStatus.OK)
-  async updateCacheAirports(): Promise<any> {
+  async updateCacheAirports(): Promise<void> {
     return await this.airportsService.updateCacheAirports();
   }
 }
