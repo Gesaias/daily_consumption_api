@@ -20,17 +20,5 @@ export class TripsController {
     @Param('back') back?: string,
   ) {
     return await this.tripsService.getTrips({ origin, destiny, going, back });
-    // const dto: SearchTripsDto = {
-    //   origin,
-    //   destiny,
-    //   going,
-    //   back,
-    // };
-
-    // if (!back) {
-    //   return await this.tripsService.getOneWayTrips(dto);
-    // }
-
-    // return await this.tripsService.getRoundTrips(dto);
   }
 }

@@ -4,7 +4,6 @@ import {
   Injectable,
   Logger,
   NotFoundException,
-  Options,
 } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import httpConfig from 'src/config/http.config';
@@ -19,7 +18,9 @@ import { PriceFromService } from './models/PriceFromService';
 import { OptionsFromService } from './models/OptionsFromService';
 import { MetaFromService } from './models/MetaFromService';
 import { SummaryFromService } from './models/SummaryFromService';
-import { UsingJoinColumnIsNotAllowedError } from 'typeorm';
+import { IDataTripsBackResponse } from './models/response/DataTripsBackResponse';
+import { IDataSummaryResponse } from './models/response/DataSummaryResponse';
+import { IDataOptionsResponse } from './models/response/DataOptionsResponse';
 
 @Injectable()
 export class TripsService {
@@ -37,19 +38,19 @@ export class TripsService {
     try {
       await this.validationsDataTrips(dto);
     } catch (error) {
-      this.logger.error('Houve um erro na busca de passagens disponiveis!');
+      this.logger.error('There was an error searching for available tickets!');
       throw error['response'];
     }
 
-    const data: TripsRequestFromService[] = await this.findData(dto);
+    const tripsService: TripsRequestFromService[] = await this.findData(dto);
 
-    if (!data[0]) {
-      throw new NotFoundException('Destino não encontrado para esta data!');
+    if (!tripsService[0]) {
+      throw new NotFoundException('Destination not found for this date!');
     }
 
     return {
-      msg: 'Viagem encontrada com sucesso!',
-      data: data,
+      msg: 'Trips found successfully!',
+      data: dto.back ? await this.mountData(tripsService) : tripsService,
     };
   }
 
@@ -111,10 +112,79 @@ export class TripsService {
     return datas;
   }
 
+  private async mountData(
+    data: TripsRequestFromService[],
+  ): Promise<IDataTripsBackResponse> {
+    function getPrice(
+      priceGoing: PriceFromService,
+      priceBack: PriceFromService,
+    ): PriceFromService {
+      const price: PriceFromService = {
+        fare: Number((priceGoing.fare + priceBack.fare).toFixed(2)),
+        fees: Number((priceGoing.fees + priceBack.fees).toFixed(1)),
+        total: Number((priceGoing.total + priceBack.total).toFixed(2)),
+      };
+      return price;
+    }
+
+    const goingService: TripsRequestFromService = data[0];
+    const backService: TripsRequestFromService = data[1];
+
+    const summary: IDataSummaryResponse = {
+      departure_date: this.day(goingService.summary.departure_date).format(
+        'YYYY/MM/DD',
+      ),
+      back_date: this.day(backService.summary.departure_date).format(
+        'YYYY/MM/DD',
+      ),
+      currency: goingService.summary.currency,
+      going: { from: goingService.summary.from, to: goingService.summary.to },
+      back: { from: backService.summary.from, to: backService.summary.to },
+    };
+
+    const options: IDataOptionsResponse[] = [];
+
+    goingService.options.forEach((going) => {
+      backService.options.forEach((back: OptionsFromService) => {
+        const dateGoingArrival = new Date(going.arrival_time);
+        const dateBackDeparture = new Date(back.departure_time);
+
+        if (this.day(dateBackDeparture).isAfter(this.day(dateGoingArrival))) {
+          const option: IDataOptionsResponse = {
+            going: {
+              departure_time: going.departure_time.toString(),
+              arrival_time: going.arrival_time.toString(),
+              aircraft: going.aircraft,
+              meta: going.meta,
+            },
+            back: {
+              departure_time: back.departure_time.toString(),
+              arrival_time: back.arrival_time.toString(),
+              aircraft: back.aircraft,
+              meta: back.meta,
+            },
+            price: getPrice(going.price, back.price),
+          };
+
+          options.push(option);
+        }
+      });
+    });
+
+    options.sort((a, b) => a.price.total - b.price.total);
+
+    const resp: IDataTripsBackResponse = {
+      summary,
+      options,
+    };
+
+    return resp;
+  }
+
   private async validationsDataTrips(dto: SearchTripsDto): Promise<void> {
     if (dto.origin === dto.destiny) {
       throw new BadRequestException(
-        'A origem precisa ser diferente do destino selecionado.',
+        'The source must be different from the selected destination.',
       );
     }
 
@@ -123,7 +193,7 @@ export class TripsService {
       this.day(dto.back).isBefore(this.day().format('YYYY-MM-DD')) ||
       this.day(dto.back).isBefore(this.day(dto.going))
     ) {
-      throw new BadRequestException('Datas inválidas!');
+      throw new BadRequestException('Invalid dates!');
     }
 
     const toAirport: Airport = await this.airportsService.findByIata(
@@ -135,7 +205,7 @@ export class TripsService {
     );
 
     if (!toAirport || !fromAirport) {
-      throw new BadRequestException('Aeroporto indisponível!');
+      throw new BadRequestException('Airport unavailable!');
     }
   }
 
@@ -181,7 +251,7 @@ export class TripsService {
     return { fare, fees, total };
   }
 
-  private calculateTime(date1: Date, date2: Date) {
+  private calculateTime(date1: Date, date2: Date): number {
     const difference: number = Math.abs(date2.getTime() - date1.getTime());
 
     const hours: number = Math.floor(difference / (1000 * 60 * 60));

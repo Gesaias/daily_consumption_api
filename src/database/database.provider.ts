@@ -4,6 +4,7 @@ import * as dotenv from 'dotenv';
 import * as dotenvExpand from 'dotenv-expand';
 import { SeederOptions } from 'typeorm-extension';
 import { DATA_SOURCE } from 'src/utils/constants/providers';
+import { MainSeeder } from './seeds/main.seeder';
 
 dotenvExpand.expand(dotenv.config());
 
@@ -18,7 +19,7 @@ const optionsDataProviders: DataSourceOptions & SeederOptions = {
   logging: databaseConfig().logging,
   synchronize: databaseConfig().synchronize,
   entities: [__dirname + '/../../dist/app/**/*.entity.js'],
-  seeds: [],
+  seeds: [MainSeeder],
 };
 
 const optionsDataSource: DataSourceOptions & SeederOptions = {
@@ -33,7 +34,7 @@ const optionsDataSource: DataSourceOptions & SeederOptions = {
   synchronize: databaseConfig().synchronize,
   entities: [__dirname + '/../../dist/app/**/*.entity.js'],
   migrations: [],
-  seeds: [],
+  seeds: [MainSeeder],
 };
 
 export const databaseProviders = [

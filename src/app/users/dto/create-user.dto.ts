@@ -3,7 +3,7 @@ import { User } from '../entities/user.entity';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateUserDto extends User {
-  @ApiProperty({ example: 'teste', description: 'User name' })
+  @ApiProperty({ example: 'test', description: 'User name' })
   @IsString()
   readonly username: string;
 
