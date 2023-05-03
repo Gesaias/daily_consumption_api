@@ -1,6 +1,6 @@
 import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
-import { AIRPORTS_REPOSITORY } from 'src/constants/providers';
+import { AIRPORTS_REPOSITORY } from 'src/utils/constants/providers';
 import { Repository } from 'typeorm';
 import { Airport } from './entities/airport.entity';
 import { City } from '../cities/entities/cities.entity';
@@ -68,5 +68,9 @@ export class AirportsService {
     });
 
     this.logger.log('updated sucessfully!', 'updateCacheAirports');
+  }
+
+  async findByIata(iata: string): Promise<Airport> {
+    return await this.airportsRepository.findOne({ where: { iata } });
   }
 }

@@ -24,6 +24,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
   ],
   controllers: [AirportsController],
   providers: [AirportsService, ...airportsProviders, Logger],
-  exports: [],
+  exports: [AirportsService],
 })
 export class AirportsModule {}

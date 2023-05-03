@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { CITIES_REPOSITORY } from 'src/constants/providers';
+import { CITIES_REPOSITORY } from 'src/utils/constants/providers';
 import { Repository } from 'typeorm';
 import { City } from './entities/cities.entity';
 import { CreateCityDto } from './dto/create-city.dto';

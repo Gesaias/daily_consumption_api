@@ -3,7 +3,7 @@ import databaseConfig from '../config/database.config';
 import * as dotenv from 'dotenv';
 import * as dotenvExpand from 'dotenv-expand';
 import { SeederOptions } from 'typeorm-extension';
-import { DATA_SOURCE } from 'src/constants/providers';
+import { DATA_SOURCE } from 'src/utils/constants/providers';
 
 dotenvExpand.expand(dotenv.config());
 

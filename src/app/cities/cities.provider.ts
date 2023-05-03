@@ -1,6 +1,6 @@
 import { DataSource } from 'typeorm';
 import { City } from './entities/cities.entity';
-import { DATA_SOURCE, CITIES_REPOSITORY } from '../../constants/providers';
+import { DATA_SOURCE, CITIES_REPOSITORY } from '../../utils/constants/providers';
 
 export const citiesProviders = [
   {
