@@ -22,7 +22,6 @@ export class AirportsService {
     private readonly logger: Logger = new Logger(AirportsService.name),
   ) {}
 
-  // Job
   @Cron('0 5 00 * * *')
   async updateCacheAirports(): Promise<void> {
     const data: [any] | Promise<Airport>[] = <any>[];

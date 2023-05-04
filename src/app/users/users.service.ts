@@ -12,7 +12,7 @@ export class UsersService {
     private readonly usersRepository: Repository<User>,
   ) {}
 
-  async create(createUserDto: CreateUserDto) {
+  async create(createUserDto: CreateUserDto): Promise<User> {
     const data: User = await this.usersRepository.create({
       ...createUserDto,
       password: await bcrypt.hash(createUserDto.password, 10),
@@ -23,7 +23,7 @@ export class UsersService {
     return { ...createdUser, password: undefined };
   }
 
-  async findByUsername(username: string) {
+  async findByUsername(username: string): Promise<User> {
     return await this.usersRepository.findOne({ where: { username } });
   }
 }

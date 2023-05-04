@@ -20,7 +20,7 @@ export class CitiesService {
       return findCity;
     }
 
-    const cityInstance = this.citiesRepository.create({
+    const cityInstance: City = this.citiesRepository.create({
       name: dto.name,
       state: dto.state,
     });

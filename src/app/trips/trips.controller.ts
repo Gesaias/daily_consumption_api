@@ -1,7 +1,8 @@
 import { Controller, Get, HttpCode, HttpStatus, Param } from '@nestjs/common';
 import { TripsService } from './trips.service';
-import { SearchTripsDto } from './dto/search-trip.dto';
 import { ApiParam } from '@nestjs/swagger';
+import { TripsRequestFromService } from './models/TripsRequestFromService';
+import { IDataTripsBackResponse } from './models/response/DataTripsBackResponse';
 
 @Controller('trips')
 export class TripsController {
@@ -18,7 +19,10 @@ export class TripsController {
     @Param('destiny') destiny: string,
     @Param('going') going: string,
     @Param('back') back?: string,
-  ) {
+  ): Promise<{
+    msg: string;
+    data: TripsRequestFromService | IDataTripsBackResponse;
+  }> {
     return await this.tripsService.getTrips({ origin, destiny, going, back });
   }
 }

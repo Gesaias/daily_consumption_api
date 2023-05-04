@@ -11,11 +11,11 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  password: string;
-
-  @Column()
+  @Column({ nullable: false })
   username: string;
+
+  @Column({ nullable: false })
+  password: string;
 
   @CreateDateColumn({
     type: 'timestamp',

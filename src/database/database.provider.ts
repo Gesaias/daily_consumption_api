@@ -37,7 +37,10 @@ const optionsDataSource: DataSourceOptions & SeederOptions = {
   seeds: [MainSeeder],
 };
 
-export const databaseProviders = [
+export const databaseProviders: {
+  provide: string;
+  useFactory: () => Promise<DataSource>;
+}[] = [
   {
     provide: DATA_SOURCE,
     useFactory: async () => {

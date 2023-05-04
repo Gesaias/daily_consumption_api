@@ -7,6 +7,7 @@ import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
 import { IS_PUBLIC_KEY } from '../decorators/is-public.decorator';
 import { UnauthorizedError } from '../errors/unauthorized.error';
+import { Observable } from 'rxjs';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
@@ -15,22 +16,24 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
   }
 
   canActivate(context: ExecutionContext): Promise<boolean> | boolean {
-    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
+    const isPublic: boolean = this.reflector.getAllAndOverride<boolean>(
+      IS_PUBLIC_KEY,
+      [context.getHandler(), context.getClass()],
+    );
 
     if (isPublic) {
       return true;
     }
 
-    const canActivate = super.canActivate(context);
+    const canActivate: boolean | Promise<boolean> | Observable<boolean> =
+      super.canActivate(context);
 
     if (typeof canActivate === 'boolean') {
       return canActivate;
     }
 
-    const canActivatePromise = canActivate as Promise<boolean>;
+    const canActivatePromise: Promise<boolean> =
+      canActivate as Promise<boolean>;
 
     return canActivatePromise.catch((error) => {
       if (error instanceof UnauthorizedError) {

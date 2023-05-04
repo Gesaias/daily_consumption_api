@@ -34,7 +34,10 @@ export class TripsService {
     private readonly airportsService: AirportsService,
   ) {}
 
-  async getTrips(dto: SearchTripsDto): Promise<object> {
+  async getTrips(dto: SearchTripsDto): Promise<{
+    msg: string;
+    data: TripsRequestFromService | IDataTripsBackResponse;
+  }> {
     try {
       await this.validationsDataTrips(dto);
     } catch (error) {
@@ -50,7 +53,9 @@ export class TripsService {
 
     return {
       msg: 'Trips found successfully!',
-      data: dto.back ? await this.mountData(tripsService) : tripsService,
+      data: dto.back
+        ? await this.mountDataGoingBack(tripsService)
+        : await this.mountDataGoing(tripsService),
     };
   }
 
@@ -112,7 +117,25 @@ export class TripsService {
     return datas;
   }
 
-  private async mountData(
+  private async mountDataGoing(
+    data: TripsRequestFromService[],
+  ): Promise<TripsRequestFromService> {
+    const trip: TripsRequestFromService = data[0];
+
+    trip.options = trip.options.map((option: OptionsFromService) => {
+      const dateDeparture: Date = new Date(option.departure_time);
+
+      if (this.day(dateDeparture).isAfter(this.day())) return option;
+    });
+
+    trip.options = trip.options.filter(
+      (value: OptionsFromService) => value !== null && value !== undefined,
+    );
+
+    return trip;
+  }
+
+  private async mountDataGoingBack(
     data: TripsRequestFromService[],
   ): Promise<IDataTripsBackResponse> {
     function getPrice(
@@ -146,10 +169,14 @@ export class TripsService {
 
     goingService.options.forEach((going) => {
       backService.options.forEach((back: OptionsFromService) => {
-        const dateGoingArrival = new Date(going.arrival_time);
-        const dateBackDeparture = new Date(back.departure_time);
+        const dateGoingDeparture: Date = new Date(going.departure_time);
+        const dateGoingArrival: Date = new Date(going.arrival_time);
+        const dateBackDeparture: Date = new Date(back.departure_time);
 
-        if (this.day(dateBackDeparture).isAfter(this.day(dateGoingArrival))) {
+        if (
+          this.day(dateBackDeparture).isAfter(this.day(dateGoingArrival)) &&
+          this.day(dateGoingDeparture).isAfter(this.day())
+        ) {
           const option: IDataOptionsResponse = {
             going: {
               departure_time: going.departure_time.toString(),

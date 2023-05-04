@@ -9,6 +9,11 @@ import {
   JoinColumn,
 } from 'typeorm';
 
+export enum AirportStatusEnum {
+  enable = 0,
+  disable = 1,
+}
+
 @Entity('airport')
 export class Airport {
   @PrimaryGeneratedColumn()
@@ -22,6 +27,16 @@ export class Airport {
 
   @Column({ name: 'lon', nullable: false })
   lon: string;
+
+  @Column({
+    name: 'status',
+    nullable: false,
+    default: AirportStatusEnum.enable,
+  })
+  status: AirportStatusEnum;
+
+  @Column({ name: 'description_status', nullable: true, length: 150 })
+  description_status: string;
 
   // Relations
 
