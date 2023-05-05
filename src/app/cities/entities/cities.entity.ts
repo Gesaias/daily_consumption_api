@@ -26,7 +26,7 @@ export class City {
   @CreateDateColumn({
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP(6)',
-    select: true,
+    select: false,
   })
   public created_at: Date;
 
@@ -34,7 +34,7 @@ export class City {
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP(6)',
     onUpdate: 'CURRENT_TIMESTAMP(6)',
-    select: true,
+    select: false,
   })
   public updated_at: Date;
 }
