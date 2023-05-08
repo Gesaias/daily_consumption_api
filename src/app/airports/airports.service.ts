@@ -21,7 +21,9 @@ export class AirportsService {
     private readonly citiesServices: CitiesService,
 
     private readonly logger: Logger = new Logger(AirportsService.name),
-  ) { }
+  ) {
+    this.updateCacheAirports();
+  }
 
   @Cron('0 5 00 * * *')
   async updateCacheAirports(): Promise<void> {
